@@ -1,4 +1,4 @@
-# # # Hi there! 👋 I'm Zain Rasool
+#  Hi there! 👋 I'm Zain Rasool
 # 💫 About Me:
 I'm an aspiring web and software developer currently pursuing a BSCS from FAST NUCES. I have a passion for backend development and am well-versed in technologies like Node.js, Express, and PostgreSQL. I'm also exploring React.js and working on personal projects to expand my skill set.
 
