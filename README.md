@@ -81,11 +81,9 @@ Data analysis project implementing statistical methods for insights extraction.
 
 <div align="center">
   
-![Zain's GitHub stats](https://github-readme-stats.vercel.app/api?username=Zain4391&show_icons=true&theme=radical&hide_border=true&include_all_commits=true&count_private=true&cache_seconds=1800)
+[![GitHub Streak](https://streak-stats.demolab.com/?user=Zain4391&theme=radical&hide_border=true)](https://git.io/streak-stats)
 
-![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=Zain4391&layout=compact&theme=radical&hide_border=true&cache_seconds=1800)
-
-![GitHub Streak](https://github-readme-streak-stats.herokuapp.com/?user=Zain4391&theme=radical&hide_border=true)
+[![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=Zain4391&layout=compact&theme=radical&hide_border=true&langs_count=8)](https://github.com/anuraghazra/github-readme-stats)
 
 </div>
 
