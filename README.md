@@ -86,8 +86,6 @@ Data analysis project implementing statistical methods for insights extraction.
   
 [![GitHub Streak](https://streak-stats.demolab.com/?user=Zain4391&theme=radical&hide_border=true)](https://git.io/streak-stats)
 
-[![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=Zain4391&layout=compact&theme=radical&hide_border=true&langs_count=8)](https://github.com/anuraghazra/github-readme-stats)
-
 </div>
 
 ## 🤝 Connect With Me
