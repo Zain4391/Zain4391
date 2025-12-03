@@ -83,9 +83,8 @@ Data analysis project implementing statistical methods for insights extraction.
 ## 📊 GitHub Stats
 
 <div align="center">
-  
-[![GitHub Streak](https://streak-stats.demolab.com/?user=Zain4391&theme=radical&hide_border=true)](https://git.io/streak-stats)
 
+  [![GitHub Streak](https://streak-stats.demolab.com/?user=Zain4391)](https://git.io/streak-stats)
 </div>
 
 ## 🤝 Connect With Me
