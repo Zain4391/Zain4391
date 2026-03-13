@@ -1,0 +1,1669 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>✦ Zain Rasool Hashmi — Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css"
+    />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/"
+        }
+      }
+    </script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg: #020510;
+        --text: #c8d8f0;
+        --muted: #4a5e7a;
+        --accent: #5cb8ff;
+        --accent2: #ff7058;
+        --glass-bg: rgba(4, 10, 28, 0.88);
+        --glass-border: rgba(80, 140, 220, 0.18);
+        --panel-width: 440px;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--bg);
+        font-family: "Space Grotesk", sans-serif;
+        color: var(--text);
+      }
+
+      canvas {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+      }
+
+      /* ── LOADING SCREEN ── */
+      #loader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: var(--bg);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 28px;
+        transition: opacity 0.8s ease;
+      }
+      #loader.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .loader-title {
+        font-size: clamp(1.4rem, 5vw, 2.4rem);
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        color: var(--accent);
+        font-family: "Space Mono", monospace;
+        text-transform: uppercase;
+      }
+      .loader-sub {
+        font-size: 0.78rem;
+        letter-spacing: 0.25em;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+      .loader-orbit {
+        width: 56px;
+        height: 56px;
+        border: 1.5px solid var(--glass-border);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* ── HUD ── */
+      #hud-name {
+        position: fixed;
+        top: 28px;
+        left: 32px;
+        z-index: 50;
+        font-family: "Space Mono", monospace;
+        font-size: 0.75rem;
+        letter-spacing: 0.2em;
+        color: var(--muted);
+        text-transform: uppercase;
+        opacity: 0;
+        transition: opacity 0.6s ease;
+      }
+      #hud-name span {
+        color: var(--accent);
+      }
+
+      #hud-hint {
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        z-index: 50;
+        transform: translateX(-50%);
+        font-size: 0.7rem;
+        letter-spacing: 0.18em;
+        color: var(--muted);
+        text-transform: uppercase;
+        opacity: 0;
+        transition: opacity 0.6s ease;
+      }
+
+      #help-btn {
+        position: fixed;
+        bottom: 26px;
+        right: 28px;
+        z-index: 50;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 1px solid var(--glass-border);
+        background: var(--glass-bg);
+        color: var(--muted);
+        font-size: 0.75rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          color 0.2s,
+          border-color 0.2s;
+        opacity: 0;
+      }
+      #help-btn:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+
+      /* ── TOOLTIP ── */
+      #tooltip {
+        position: fixed;
+        z-index: 60;
+        pointer-events: none;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(12px);
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-family: "Space Mono", monospace;
+        font-size: 0.68rem;
+        letter-spacing: 0.15em;
+        color: var(--accent);
+        text-transform: uppercase;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+        white-space: nowrap;
+      }
+
+      /* ── PANEL BASE ── */
+      .panel {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 80;
+        width: min(var(--panel-width), 100vw);
+        background: var(--glass-bg);
+        border-left: 1px solid var(--glass-border);
+        backdrop-filter: blur(24px);
+        transform: translateX(100%);
+        transition: transform 0.55s cubic-bezier(0.23, 1, 0.32, 1);
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: var(--muted) transparent;
+      }
+      .panel.open {
+        transform: translateX(0);
+      }
+
+      /* Panel header */
+      .panel-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: var(--glass-bg);
+        border-bottom: 1px solid var(--glass-border);
+        padding: 20px 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        backdrop-filter: blur(24px);
+      }
+      .panel-header h2 {
+        font-family: "Space Mono", monospace;
+        font-size: 0.72rem;
+        letter-spacing: 0.2em;
+        color: var(--accent);
+        text-transform: uppercase;
+      }
+      .close-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 1px solid var(--glass-border);
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          color 0.2s,
+          border-color 0.2s;
+      }
+      .close-btn:hover {
+        color: var(--text);
+        border-color: var(--text);
+      }
+
+      /* Panel body */
+      .panel-body {
+        padding: 0 28px 48px;
+      }
+
+      /* ── ABOUT PANEL STYLES ── */
+      .avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1a3a6e 0%, #0d2040 100%);
+        border: 2px solid var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--accent);
+        font-family: "Space Mono", monospace;
+        flex-shrink: 0;
+      }
+      .profile-row {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        padding: 28px 0 24px;
+      }
+      .profile-info h1 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #e8f0ff;
+        margin-bottom: 4px;
+      }
+      .profile-info p {
+        font-size: 0.78rem;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+      }
+      .socials {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .social-chip {
+        font-family: "Space Mono", monospace;
+        font-size: 0.62rem;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+        text-decoration: none;
+        border: 1px solid var(--glass-border);
+        padding: 4px 10px;
+        border-radius: 4px;
+        transition:
+          color 0.2s,
+          border-color 0.2s;
+      }
+      .social-chip:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+
+      /* section labels */
+      .section-label {
+        font-family: "Space Mono", monospace;
+        font-size: 0.6rem;
+        letter-spacing: 0.25em;
+        color: var(--accent);
+        text-transform: uppercase;
+        margin-bottom: 14px;
+        margin-top: 32px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .section-label::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--glass-border);
+      }
+
+      /* bio */
+      .bio {
+        font-size: 0.88rem;
+        line-height: 1.75;
+        color: #8aa4c8;
+      }
+
+      /* skill chips */
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-top: 14px;
+      }
+      .chip {
+        font-family: "Space Mono", monospace;
+        font-size: 0.6rem;
+        letter-spacing: 0.1em;
+        border: 1px solid var(--glass-border);
+        color: var(--muted);
+        padding: 4px 10px;
+        border-radius: 4px;
+      }
+
+      /* Tech stack icon grid */
+      .tech-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-top: 16px;
+      }
+      .tech-icon-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 12px 6px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(80, 140, 220, 0.08);
+        transition: all 0.3s ease;
+      }
+      .tech-icon-card:hover {
+        background: rgba(79, 163, 224, 0.08);
+        border-color: rgba(79, 163, 224, 0.25);
+        transform: translateY(-2px);
+      }
+      .tech-icon-card i {
+        font-size: 1.6rem;
+        transition:
+          transform 0.3s,
+          filter 0.3s;
+      }
+      .tech-icon-card:hover i {
+        transform: scale(1.15);
+        filter: brightness(1.3);
+      }
+      .tech-icon-card span {
+        font-size: 0.58rem;
+        color: var(--muted);
+        text-align: center;
+        line-height: 1.2;
+        letter-spacing: 0.04em;
+      }
+
+      /* timeline */
+      .timeline {
+        position: relative;
+        padding-left: 18px;
+      }
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 8px;
+        bottom: 0;
+        width: 1px;
+        background: var(--glass-border);
+      }
+      .tl-item {
+        position: relative;
+        margin-bottom: 24px;
+      }
+      .tl-dot {
+        position: absolute;
+        left: -22px;
+        top: 6px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 2px solid var(--bg);
+      }
+      .tl-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #d0e0f8;
+        margin-bottom: 2px;
+      }
+      .tl-sub {
+        font-size: 0.78rem;
+        color: var(--accent);
+        margin-bottom: 2px;
+      }
+      .tl-meta {
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+      .tl-badge {
+        display: inline-block;
+        margin-top: 6px;
+        font-family: "Space Mono", monospace;
+        font-size: 0.6rem;
+        padding: 2px 8px;
+        border-radius: 3px;
+        background: rgba(79, 163, 224, 0.1);
+        color: var(--accent);
+        letter-spacing: 0.08em;
+      }
+
+      /* experience cards */
+      .exp-card {
+        border: 1px solid var(--glass-border);
+        border-radius: 10px;
+        padding: 18px 20px;
+        margin-bottom: 16px;
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .exp-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .exp-company {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #d0e0f8;
+      }
+      .exp-role {
+        font-size: 0.75rem;
+        color: var(--accent);
+        margin-top: 2px;
+      }
+      .exp-date {
+        font-family: "Space Mono", monospace;
+        font-size: 0.6rem;
+        color: var(--muted);
+        white-space: nowrap;
+        margin-top: 3px;
+      }
+      .exp-bullets {
+        margin-top: 10px;
+        padding-left: 14px;
+      }
+      .exp-bullets li {
+        font-size: 0.78rem;
+        color: #8aa4c8;
+        line-height: 1.6;
+        margin-bottom: 4px;
+      }
+
+      /* resume buttons */
+      .resume-area {
+        margin-top: 14px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .btn-primary {
+        flex: 1;
+        min-width: 140px;
+        background: linear-gradient(
+          135deg,
+          rgba(79, 163, 224, 0.2),
+          rgba(79, 163, 224, 0.08)
+        );
+        border: 1px solid rgba(79, 163, 224, 0.4);
+        color: var(--accent);
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        padding: 12px 18px;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition:
+          background 0.2s,
+          border-color 0.2s;
+      }
+      .btn-primary:hover {
+        background: rgba(79, 163, 224, 0.25);
+        border-color: var(--accent);
+      }
+      .btn-secondary {
+        flex: 1;
+        min-width: 140px;
+        background: transparent;
+        border: 1px solid var(--glass-border);
+        color: var(--muted);
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        padding: 12px 18px;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition:
+          color 0.2s,
+          border-color 0.2s;
+      }
+      .btn-secondary:hover {
+        color: var(--text);
+        border-color: var(--muted);
+      }
+
+      /* ── PROJECT PANEL STYLES ── */
+      .proj-planet {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        box-shadow: 0 0 20px currentColor;
+      }
+      .proj-header-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 28px 0 20px;
+      }
+      .proj-name {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #e8f0ff;
+      }
+      .proj-tagline {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .proj-desc {
+        font-size: 0.86rem;
+        line-height: 1.75;
+        color: #8aa4c8;
+      }
+      .tech-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-top: 14px;
+      }
+      .tech-chip {
+        font-family: "Space Mono", monospace;
+        font-size: 0.6rem;
+        letter-spacing: 0.1em;
+        padding: 4px 10px;
+        border-radius: 4px;
+        border: 1px solid; /* color set inline */
+      }
+      .screenshot-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .screenshot-ph {
+        aspect-ratio: 16/9;
+        border-radius: 6px;
+        border: 1px solid var(--glass-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6rem;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        font-family: "Space Mono", monospace;
+      }
+      .proj-btns {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      /* ── MOBILE ── */
+      @media (max-width: 768px) {
+        :root {
+          --panel-width: 100vw;
+        }
+        .panel {
+          top: auto;
+          bottom: 0;
+          right: 0;
+          left: 0;
+          width: 100%;
+          height: 80vh;
+          border-left: none;
+          border-top: 1px solid var(--glass-border);
+          transform: translateY(100%);
+          border-radius: 16px 16px 0 0;
+        }
+        .panel.open {
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading screen -->
+    <div id="loader">
+      <div class="loader-title">Zain Rasool Hashmi</div>
+      <div class="loader-orbit"></div>
+      <div class="loader-sub">Initializing solar system…</div>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud-name">ZRH <span>//</span> Portfolio</div>
+    <div id="hud-hint">Click the Sun · Explore Planets · Drag to rotate</div>
+    <button id="help-btn" title="Help">?</button>
+
+    <!-- Tooltip -->
+    <div id="tooltip"></div>
+
+    <!-- ── ABOUT ME PANEL ── -->
+    <div class="panel" id="panel-about">
+      <div class="panel-header">
+        <h2>About Me</h2>
+        <button class="close-btn" id="close-about">✕</button>
+      </div>
+      <div class="panel-body">
+        <!-- Profile -->
+        <div class="profile-row">
+          <div class="avatar">ZR</div>
+          <div class="profile-info">
+            <h1>Zain Rasool Hashmi</h1>
+            <p>Full-Stack Developer · CS Student · Karachi, PK</p>
+            <div class="socials">
+              <a
+                href="https://github.com/Zain4391"
+                target="_blank"
+                class="social-chip"
+                aria-label="GitHub"
+                ><svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"
+                  /></svg
+              ></a>
+              <a
+                href="https://linkedin.com/in/zain-rasool-hashmi"
+                target="_blank"
+                class="social-chip"
+                aria-label="LinkedIn"
+                ><svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"
+                  /></svg
+              ></a>
+              <a
+                href="mailto:zainrasoolhashmi@gmail.com"
+                class="social-chip"
+                aria-label="Email"
+                ><svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"
+                  /></svg
+              ></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- About -->
+        <div class="section-label">About</div>
+        <p class="bio">
+          Final-year BS Computer Science student at FAST-NUCES, Karachi, with a
+          CGPA of 3.61/4.0. I'm passionate about full-stack development and
+          building scalable, production-grade software. My work spans backend
+          APIs with Spring Boot and NestJS, frontend development with React and
+          Next.js, and data science with Python.
+        </p>
+        <p class="bio" style="margin-top: 12px">
+          Outside of code, I've been an active member of ACM NUCES, contributing
+          to coding events, and I'm deeply interested in applying software
+          engineering to solve real-world problems — from e-commerce systems to
+          medical imaging.
+        </p>
+        <div class="chips">
+          <span class="chip">Full-Stack Dev</span>
+          <span class="chip">System Design</span>
+          <span class="chip">Microservices</span>
+          <span class="chip">Machine Learning</span>
+          <span class="chip">Data Science</span>
+          <span class="chip">Open Source</span>
+        </div>
+
+        <div class="section-label">Tech Stack</div>
+        <div class="tech-grid">
+          <div class="tech-icon-card">
+            <i class="devicon-docker-plain" style="color: #2496ed"></i
+            ><span>Docker</span>
+          </div>
+          <div class="tech-icon-card">
+            <i class="devicon-python-plain" style="color: #3776ab"></i
+            ><span>Python</span>
+          </div>
+          <div class="tech-icon-card">
+            <i class="devicon-nodejs-plain" style="color: #5fa04e"></i
+            ><span>Node.js</span>
+          </div>
+          <div class="tech-icon-card">
+            <i class="devicon-express-original" style="color: #eeeeee"></i
+            ><span>Express</span>
+          </div>
+          <div class="tech-icon-card">
+            <i class="devicon-nestjs-original" style="color: #e0234e"></i
+            ><span>NestJS</span>
+          </div>
+          <div class="tech-icon-card">
+            <i class="devicon-spring-original" style="color: #6db33f"></i
+            ><span>Spring Boot</span>
+          </div>
+          <div class="tech-icon-card">
+            <i class="devicon-csharp-plain" style="color: #9b4ae8"></i
+            ><span>C#</span>
+          </div>
+          <div class="tech-icon-card">
+            <i class="devicon-dotnetcore-plain" style="color: #512bd4"></i
+            ><span>.NET</span>
+          </div>
+          <div class="tech-icon-card">
+            <i class="devicon-postgresql-plain" style="color: #4169e1"></i
+            ><span>PostgreSQL</span>
+          </div>
+          <div class="tech-icon-card">
+            <i class="devicon-mongodb-plain" style="color: #47a248"></i
+            ><span>MongoDB</span>
+          </div>
+          <div class="tech-icon-card">
+            <i class="devicon-redis-plain" style="color: #ff4438"></i
+            ><span>Redis</span>
+          </div>
+          <div class="tech-icon-card">
+            <i class="devicon-cplusplus-plain" style="color: #00599c"></i
+            ><span>C/C++</span>
+          </div>
+          <div class="tech-icon-card">
+            <i class="devicon-react-original" style="color: #61dafb"></i
+            ><span>React</span>
+          </div>
+          <div class="tech-icon-card">
+            <i class="devicon-angularjs-plain" style="color: #dd0031"></i
+            ><span>Angular</span>
+          </div>
+          <div class="tech-icon-card">
+            <i class="devicon-typescript-plain" style="color: #3178c6"></i
+            ><span>JS / TS</span>
+          </div>
+          <div class="tech-icon-card">
+            <i class="devicon-html5-plain" style="color: #e34f26"></i
+            ><span>HTML + CSS</span>
+          </div>
+        </div>
+
+        <!-- Education -->
+        <div class="section-label">Education</div>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-title">
+              National University of Computing &amp; Emerging Sciences
+            </div>
+            <div class="tl-sub">B.S. Computer Science · FAST-NUCES Karachi</div>
+            <div class="tl-meta">2022 – Present</div>
+            <span class="tl-badge">CGPA 3.61 / 4.0</span>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-title">Cedar College PECHS</div>
+            <div class="tl-sub">A Levels</div>
+            <div class="tl-meta">2020 – 2022</div>
+            <span class="tl-badge">3 A's — CS · Math · Physics</span>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-title">Happy Palace Grammar School (HPGS)</div>
+            <div class="tl-sub">O Levels</div>
+            <div class="tl-meta">2017 – 2020</div>
+            <span class="tl-badge">2 A's · 6 B's</span>
+          </div>
+        </div>
+
+        <!-- Experience -->
+        <div class="section-label">Experience</div>
+
+        <div class="exp-card">
+          <div class="exp-top">
+            <div>
+              <div class="exp-company">
+                Aga Khan University — Aspire Program
+              </div>
+              <div class="exp-role">Data Analyst Intern</div>
+            </div>
+            <div class="exp-date">Jun – Aug 2025</div>
+          </div>
+          <ul class="exp-bullets">
+            <li>
+              Developed data visualization pipelines for antibody data analysis
+              and manipulation.
+            </li>
+            <li>
+              Built unsupervised learning models to identify patterns in large
+              biomedical datasets.
+            </li>
+            <li>
+              Collaborated with research staff to automate reporting workflows,
+              reducing manual effort significantly.
+            </li>
+          </ul>
+        </div>
+
+        <div class="exp-card">
+          <div class="exp-top">
+            <div>
+              <div class="exp-company">ACM NUCES Karachi</div>
+              <div class="exp-role">Code Sprint Deputy</div>
+            </div>
+            <div class="exp-date">2023 – 2024</div>
+          </div>
+          <ul class="exp-bullets">
+            <li>
+              Organized and managed competitive programming events for 200+
+              student participants.
+            </li>
+            <li>
+              Designed problem sets and coordinated with judges for Code Sprint
+              competitions.
+            </li>
+            <li>
+              Mentored junior members on algorithmic problem solving and contest
+              strategy.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PROJECT PANEL ── -->
+    <div class="panel" id="panel-project">
+      <div class="panel-header">
+        <h2 id="proj-panel-label">Project</h2>
+        <button class="close-btn" id="close-project">✕</button>
+      </div>
+      <div class="panel-body">
+        <div class="proj-header-row">
+          <div class="proj-planet" id="proj-planet-orb"></div>
+          <div>
+            <div class="proj-name" id="proj-name"></div>
+            <div class="proj-tagline" id="proj-tagline"></div>
+          </div>
+        </div>
+        <div class="section-label">Overview</div>
+        <p class="proj-desc" id="proj-desc"></p>
+        <div class="section-label">Tech Stack</div>
+        <div class="tech-chips" id="proj-tech"></div>
+        <div class="section-label">Highlights</div>
+        <ul
+          class="exp-bullets"
+          id="proj-bullets"
+          style="padding-left: 18px"
+        ></ul>
+        <div class="proj-btns" style="margin-top: 20px">
+          <a href="#" id="proj-github" target="_blank" class="btn-primary"
+            ><svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              style="flex-shrink: 0"
+            >
+              <path
+                d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"
+              />
+            </svg>
+            View on GitHub</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import * as THREE from "three";
+      import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+      import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+      import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+      import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+
+      // ─── DATA ─────────────────────────────────────────────────────────────────
+      const PROJECTS = [
+        {
+          name: "SOLEMATE",
+          tagline: "Full-Stack E-Commerce Platform · PERN + Microservices",
+          desc: "A production-grade e-commerce platform for shoe retail built with a microservices architecture. Features a complete shopping experience with cart, orders, payments, and real-time inventory via Redis caching.",
+          tech: [
+            "PostgreSQL",
+            "Node.js",
+            "Express",
+            "React",
+            "Redis",
+            "Docker",
+            "TypeScript",
+          ],
+          bullets: [
+            "Built microservices architecture with separate services for auth, products, orders, and notifications.",
+            "Implemented Redis caching layer reducing database load and improving response times.",
+            "Designed normalized PostgreSQL schema with transaction handling for payment flows.",
+            "Containerized all services with Docker Compose for one-command local development.",
+          ],
+          github: "https://github.com/Zain4391/solemate-microservices",
+          live: "#",
+          color: 0x55bbff,
+          radius: 3.5,
+          orbitRadius: 22,
+          orbitSpeed: 0.0045,
+          tilt: 0.08,
+          hasRings: false,
+          hasMoon: true,
+        },
+        {
+          name: "LMS — Library Mgmt System",
+          tagline: "Java Spring Boot · 85+ REST Endpoints · PostgreSQL",
+          desc: "A full-featured Library Management System built with Spring Boot, showcasing enterprise-grade Java development. Implements role-based access control, JWT auth, and a rich API surface for academic use.",
+          tech: [
+            "Java",
+            "Spring Boot",
+            "Spring Security",
+            "PostgreSQL",
+            "Hibernate",
+            "JWT",
+          ],
+          bullets: [
+            "Developed 85+ RESTful API endpoints with full CRUD for books, users, loans, and reservations.",
+            "Implemented Spring Security with JWT authentication and role-based access (student, staff, admin).",
+            "Designed database schema using Spring Data JPA with optimized query strategies.",
+          ],
+          github: "https://github.com/Zain4391/LMS",
+          live: "#",
+          color: 0xffbb33,
+          radius: 3.0,
+          orbitRadius: 34,
+          orbitSpeed: 0.0032,
+          tilt: 0.12,
+          hasRings: true,
+          hasMoon: false,
+        },
+        {
+          name: "Z — Social Platform",
+          tagline: "Next.js · Prisma · TypeScript",
+          desc: "A modern full-stack social media platform built with the Next.js App Router. Features post creation, media uploads, user authentication, and a real-time-like feed powered by efficient server-side data fetching.",
+          tech: [
+            "TypeScript",
+            "Next.js",
+            "Prisma ORM",
+            "PostgreSQL",
+            "Tailwind CSS",
+            "Next-Auth",
+          ],
+          bullets: [
+            "Built with Next.js App Router leveraging React Server Components for optimal performance.",
+            "Implemented Prisma ORM with PostgreSQL for type-safe, efficient database access.",
+            "Designed responsive UI with Tailwind CSS and smooth client-side transitions.",
+            "Integrated media uploads and user session management with Next-Auth.",
+          ],
+          github: "https://github.com/Zain4391/Z",
+          live: "#",
+          color: 0xaa66ff,
+          radius: 2.2,
+          orbitRadius: 46,
+          orbitSpeed: 0.0024,
+          tilt: 0.06,
+          hasRings: false,
+          hasMoon: false,
+        },
+        {
+          name: "Food Delivery System",
+          tagline: "NestJS · RabbitMQ · TypeORM · Modular Monolith",
+          desc: "A microservices-based food delivery backend system, featuring message-queue driven communication between services for orders, restaurants, and delivery tracking.",
+          tech: [
+            "NestJS",
+            "RabbitMQ",
+            "TypeORM",
+            "PostgreSQL",
+            "TypeScript",
+            "Docker",
+          ],
+          bullets: [
+            "Designed event-driven modular monolith with RabbitMQ for decoupled service communication.",
+            "Implemented NestJS modules for auth, orders, restaurants, and delivery tracking.",
+            "Used TypeORM with PostgreSQL for type-safe database operations across services.",
+          ],
+          github: "https://github.com/Zain4391/Food_Delivery_System",
+          live: "#",
+          color: 0x44ee66,
+          radius: 1.8,
+          orbitRadius: 60,
+          orbitSpeed: 0.0017,
+          tilt: 0.15,
+          hasRings: false,
+          hasMoon: true,
+        },
+        {
+          name: "Brain Tumor Classifier",
+          tagline: "Deep Learning · PyTorch · CNN",
+          desc: "A Convolutional Neural Network trained to classify MRI brain scans into four categories — Glioma, Meningioma, Pituitary tumor, and No tumor — with high accuracy using PyTorch.",
+          tech: [
+            "Python",
+            "PyTorch",
+            "Scikit-learn",
+            "NumPy",
+            "Pandas",
+            "Matplotlib",
+          ],
+          bullets: [
+            "Trained CNN model on MRI brain scan dataset for multi-class tumor classification.",
+            "Implemented data augmentation and preprocessing pipelines for medical imaging.",
+            "Achieved high accuracy through hyperparameter tuning and regularization techniques.",
+            "Visualized model predictions and confusion matrices for clinical interpretability.",
+          ],
+          github: "https://github.com/Zain4391/BrainTumor_Classification.py",
+          live: "#",
+          color: 0xff4466,
+          radius: 1.5,
+          orbitRadius: 75,
+          orbitSpeed: 0.0011,
+          tilt: 0.09,
+          hasRings: false,
+          hasMoon: false,
+        },
+        {
+          name: "Clinic Booking System",
+          tagline: "C# · .NET Core · PostgreSQL",
+          desc: "A web application backend for managing clinic appointments and patient records built with C#.",
+          tech: ["C#", ".NET Core", "PostgreSQL"],
+          bullets: [
+            "Developed a web application backend for managing clinic appointments and patient records.",
+            "Designed a relational database schema using PostgreSQL for efficient data storage and retrieval.",
+            "Implemented role-based access control for different user types (admin, doctor, patient).",
+          ],
+          github: "https://github.com/Zain4391/CLINICBOOKINGSYSTEM",
+          live: "#",
+          color: 0xcbc3e3,
+          radius: 1.2,
+          orbitRadius: 88,
+          orbitSpeed: 0.0009,
+          tilt: 0.15,
+          hasRings: false,
+          hasMoon: true,
+        },
+      ];
+
+      // ─── RENDERER ────────────────────────────────────────────────────────────
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      renderer.setSize(innerWidth, innerHeight);
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.1;
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      document.body.appendChild(renderer.domElement);
+
+      // ─── POST-PROCESSING (BLOOM) ─────────────────────────────────────────────
+      const composer = new EffectComposer(renderer);
+      const renderPass = new RenderPass(null, null); // scene & camera set after creation
+      composer.addPass(renderPass);
+      const bloomPass = new UnrealBloomPass(
+        new THREE.Vector2(innerWidth, innerHeight),
+        1.15, // strength
+        0.5, // radius
+        0.75, // threshold
+      );
+      composer.addPass(bloomPass);
+
+      // ─── SCENE / CAMERA ──────────────────────────────────────────────────────
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        60,
+        innerWidth / innerHeight,
+        0.1,
+        2000,
+      );
+      camera.position.set(0, 120, 350); // Start far away for intro fly-in
+
+      // Hook up post-processing
+      renderPass.scene = scene;
+      renderPass.camera = camera;
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.minDistance = 18;
+      controls.maxDistance = 350;
+      controls.target.set(0, 0, 0);
+
+      // ─── LIGHTING ────────────────────────────────────────────────────────────
+      scene.add(new THREE.AmbientLight(0x182848, 1.8));
+      const sunLight = new THREE.PointLight(0xffd590, 5, 500);
+      sunLight.position.set(0, 0, 0);
+      scene.add(sunLight);
+
+      // Subtle hemisphere light — sky/ground fill so far planets aren't pitch-black
+      scene.add(new THREE.HemisphereLight(0x334466, 0x0a0a18, 0.6));
+
+      // ─── STARFIELD ───────────────────────────────────────────────────────────
+      function makeStars(count, r, size, opacity) {
+        const pos = new Float32Array(count * 3);
+        for (let i = 0; i < count; i++) {
+          const theta = Math.random() * Math.PI * 2;
+          const phi = Math.acos(2 * Math.random() - 1);
+          const d = r + (Math.random() - 0.5) * r * 0.5;
+          pos[i * 3] = d * Math.sin(phi) * Math.cos(theta);
+          pos[i * 3 + 1] = d * Math.sin(phi) * Math.sin(theta);
+          pos[i * 3 + 2] = d * Math.cos(phi);
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+        const mat = new THREE.PointsMaterial({
+          size,
+          color: 0xffffff,
+          sizeAttenuation: true,
+          transparent: true,
+          opacity,
+        });
+        return new THREE.Points(geo, mat);
+      }
+      const stars1 = makeStars(5000, 700, 0.6, 0.7);
+      const stars2 = makeStars(2000, 450, 0.3, 0.4);
+      scene.add(stars1, stars2);
+
+      // ─── NEBULA SPRITES ──────────────────────────────────────────────────────
+      function makeNebula(color, x, y, z, scale, opacity) {
+        const c = document.createElement("canvas");
+        c.width = c.height = 256;
+        const ctx = c.getContext("2d");
+        const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+        g.addColorStop(
+          0,
+          color +
+            Math.round(opacity * 255)
+              .toString(16)
+              .padStart(2, "0"),
+        );
+        g.addColorStop(0.4, color + "18");
+        g.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, 256, 256);
+        const tex = new THREE.CanvasTexture(c);
+        const mat = new THREE.SpriteMaterial({
+          map: tex,
+          blending: THREE.AdditiveBlending,
+          transparent: true,
+          depthWrite: false,
+        });
+        const s = new THREE.Sprite(mat);
+        s.position.set(x, y, z);
+        s.scale.set(scale, scale, 1);
+        scene.add(s);
+        return s;
+      }
+      makeNebula("#4466cc", -200, 80, -300, 350, 0.12);
+      makeNebula("#8844aa", 250, -50, -250, 280, 0.08);
+      makeNebula("#cc6644", 100, 100, -400, 220, 0.06);
+      makeNebula("#2288aa", -150, -70, -350, 300, 0.1);
+
+      // ─── SHOOTING STARS ──────────────────────────────────────────────────────
+      const shootingStars = [];
+      const SHOOT_GEO = new THREE.BufferGeometry();
+      SHOOT_GEO.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute([0, 0, 0, -4, -1, -1], 3),
+      );
+      const SHOOT_MAT = new THREE.LineBasicMaterial({
+        color: 0xaaccff,
+        transparent: true,
+        opacity: 0.7,
+      });
+
+      function spawnShootingStar() {
+        const line = new THREE.Line(SHOOT_GEO.clone(), SHOOT_MAT.clone());
+        const angle = Math.random() * Math.PI * 2;
+        const r = 150 + Math.random() * 200;
+        line.position.set(
+          Math.cos(angle) * r,
+          60 + Math.random() * 120,
+          Math.sin(angle) * r,
+        );
+        const speed = 1.5 + Math.random() * 2;
+        const dir = new THREE.Vector3(
+          -0.5 + Math.random() * -0.5,
+          -0.3 + Math.random() * -0.3,
+          -0.2 + Math.random() * -0.4,
+        )
+          .normalize()
+          .multiplyScalar(speed);
+        line.userData = {
+          dir,
+          life: 1.0,
+          decay: 0.008 + Math.random() * 0.012,
+        };
+        scene.add(line);
+        shootingStars.push(line);
+      }
+
+      function updateShootingStars() {
+        // Randomly spawn
+        if (Math.random() < 0.012) spawnShootingStar();
+        for (let i = shootingStars.length - 1; i >= 0; i--) {
+          const s = shootingStars[i];
+          s.position.add(s.userData.dir);
+          s.userData.life -= s.userData.decay;
+          s.material.opacity = s.userData.life * 0.7;
+          if (s.userData.life <= 0) {
+            scene.remove(s);
+            s.geometry.dispose();
+            s.material.dispose();
+            shootingStars.splice(i, 1);
+          }
+        }
+      }
+
+      // ─── SUN ─────────────────────────────────────────────────────────────────
+      const sunGeo = new THREE.SphereGeometry(9, 64, 64);
+      const sunMat = new THREE.MeshStandardMaterial({
+        color: 0xffcc44,
+        emissive: 0xff8800,
+        emissiveIntensity: 1.4,
+        roughness: 1,
+        metalness: 0,
+      });
+      const sun = new THREE.Mesh(sunGeo, sunMat);
+      sun.name = "sun";
+      scene.add(sun);
+
+      // Glow halo (sprite)
+      const glowCanvas = document.createElement("canvas");
+      glowCanvas.width = glowCanvas.height = 256;
+      const gCtx = glowCanvas.getContext("2d");
+      const grd = gCtx.createRadialGradient(128, 128, 20, 128, 128, 128);
+      grd.addColorStop(0, "rgba(255,200,60,0.55)");
+      grd.addColorStop(0.4, "rgba(255,150,30,0.18)");
+      grd.addColorStop(1, "rgba(0,0,0,0)");
+      gCtx.fillStyle = grd;
+      gCtx.fillRect(0, 0, 256, 256);
+      const glowTex = new THREE.CanvasTexture(glowCanvas);
+      const haloMat = new THREE.SpriteMaterial({
+        map: glowTex,
+        blending: THREE.AdditiveBlending,
+        transparent: true,
+        depthWrite: false,
+      });
+      const halo = new THREE.Sprite(haloMat);
+      halo.scale.set(52, 52, 1);
+      scene.add(halo);
+
+      // ─── ORBIT RINGS + PLANETS ───────────────────────────────────────────────
+      const planetMeshes = [];
+      const planetAngles = PROJECTS.map(() => Math.random() * Math.PI * 2);
+
+      PROJECTS.forEach((proj, i) => {
+        // Orbit ring
+        const orbitPts = [];
+        for (let j = 0; j <= 128; j++) {
+          const a = (j / 128) * Math.PI * 2;
+          orbitPts.push(
+            new THREE.Vector3(
+              Math.cos(a) * proj.orbitRadius,
+              0,
+              Math.sin(a) * proj.orbitRadius,
+            ),
+          );
+        }
+        const orbitGeo = new THREE.BufferGeometry().setFromPoints(orbitPts);
+        const orbitMat = new THREE.LineBasicMaterial({
+          color: 0x3366aa,
+          transparent: true,
+          opacity: 0.55,
+        });
+        scene.add(new THREE.LineLoop(orbitGeo, orbitMat));
+
+        // Planet
+        const pGeo = new THREE.SphereGeometry(proj.radius, 48, 48);
+        const pMat = new THREE.MeshStandardMaterial({
+          color: proj.color,
+          roughness: 0.55,
+          metalness: 0.15,
+          emissive: proj.color,
+          emissiveIntensity: 0.25,
+        });
+        const planet = new THREE.Mesh(pGeo, pMat);
+        planet.name = "planet_" + i;
+        planet.userData = { projIndex: i };
+        scene.add(planet);
+
+        // Rings
+        if (proj.hasRings) {
+          const rGeo = new THREE.TorusGeometry(proj.radius * 1.9, 0.25, 2, 64);
+          const rMat = new THREE.MeshBasicMaterial({
+            color: proj.color,
+            transparent: true,
+            opacity: 0.35,
+            side: THREE.DoubleSide,
+          });
+          const ring = new THREE.Mesh(rGeo, rMat);
+          ring.rotation.x = 0.42;
+          planet.add(ring);
+        }
+
+        // Moon
+        if (proj.hasMoon) {
+          const mGeo = new THREE.SphereGeometry(0.38, 16, 16);
+          const mMat = new THREE.MeshStandardMaterial({
+            color: 0x889aaa,
+            roughness: 0.9,
+          });
+          const moon = new THREE.Mesh(mGeo, mMat);
+          moon.userData = { moonOf: i };
+          scene.add(moon);
+          planet.userData.moon = moon;
+        }
+
+        // Glow halo per planet
+        const pHaloCanvas = document.createElement("canvas");
+        pHaloCanvas.width = pHaloCanvas.height = 128;
+        const pCtx = pHaloCanvas.getContext("2d");
+        const pr = proj.color;
+        const pr2hex = "#" + pr.toString(16).padStart(6, "0");
+        const pGrd = pCtx.createRadialGradient(64, 64, 4, 64, 64, 64);
+        pGrd.addColorStop(0, pr2hex + "55");
+        pGrd.addColorStop(1, "rgba(0,0,0,0)");
+        pCtx.fillStyle = pGrd;
+        pCtx.fillRect(0, 0, 128, 128);
+        const pGlowTex = new THREE.CanvasTexture(pHaloCanvas);
+        const pHaloMat = new THREE.SpriteMaterial({
+          map: pGlowTex,
+          blending: THREE.AdditiveBlending,
+          transparent: true,
+          depthWrite: false,
+        });
+        const pHalo = new THREE.Sprite(pHaloMat);
+        pHalo.scale.set(proj.radius * 4, proj.radius * 4, 1);
+        planet.add(pHalo);
+
+        planetMeshes.push(planet);
+      });
+
+      // Asteroid belt (InstancedMesh)
+      const astGeo = new THREE.IcosahedronGeometry(0.14, 0);
+      const astMat = new THREE.MeshStandardMaterial({
+        color: 0x445566,
+        roughness: 0.95,
+      });
+      const AST_COUNT = 700;
+      const astMesh = new THREE.InstancedMesh(astGeo, astMat, AST_COUNT);
+      const dummy = new THREE.Object3D();
+      const astAngles = [],
+        astRadii = [],
+        astY = [],
+        astSpeeds = [];
+      for (let i = 0; i < AST_COUNT; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const r = 39 + Math.random() * 7;
+        const y = (Math.random() - 0.5) * 2;
+        astAngles.push(angle);
+        astRadii.push(r);
+        astY.push(y);
+        astSpeeds.push(
+          (0.0003 + Math.random() * 0.0004) * (Math.random() > 0.5 ? 1 : -1),
+        );
+        dummy.position.set(Math.cos(angle) * r, y, Math.sin(angle) * r);
+        dummy.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+        dummy.scale.setScalar(0.5 + Math.random() * 1.2);
+        dummy.updateMatrix();
+        astMesh.setMatrixAt(i, dummy.matrix);
+      }
+      astMesh.instanceMatrix.needsUpdate = true;
+      scene.add(astMesh);
+
+      // ─── RAYCASTING / INTERACTION ────────────────────────────────────────────
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2(-9999, -9999);
+      const clickables = [sun, ...planetMeshes];
+      let hovered = null;
+
+      const tooltip = document.getElementById("tooltip");
+
+      renderer.domElement.addEventListener("mousemove", (e) => {
+        const rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+        tooltip.style.left = e.clientX + 14 + "px";
+        tooltip.style.top = e.clientY - 10 + "px";
+      });
+
+      renderer.domElement.addEventListener("click", (e) => {
+        raycaster.setFromCamera(mouse, camera);
+        const hits = raycaster.intersectObjects(clickables, false);
+        if (!hits.length) return;
+        const obj = hits[0].object;
+        if (obj.name === "sun") openAbout();
+        else if (obj.name.startsWith("planet_"))
+          openProject(obj.userData.projIndex);
+      });
+
+      // ─── PANELS ──────────────────────────────────────────────────────────────
+      const panelAbout = document.getElementById("panel-about");
+      const panelProject = document.getElementById("panel-project");
+
+      const defaultCamPos = new THREE.Vector3(0, 52, 115);
+      let targetCamPos = defaultCamPos.clone();
+      let targetLookAt = new THREE.Vector3(0, 0, 0);
+      let animating = true; // Start true for intro fly-in
+
+      function focusOn(worldPos, dist = 26) {
+        const dir = worldPos.clone().sub(camera.position).normalize();
+        // offset from object toward camera
+        targetCamPos = worldPos
+          .clone()
+          .add(new THREE.Vector3(0, dist * 0.4, dist));
+        targetLookAt = worldPos.clone();
+        animating = true;
+      }
+
+      function resetCamera() {
+        targetCamPos.copy(defaultCamPos);
+        targetLookAt.set(0, 0, 0);
+        animating = true;
+      }
+
+      function openAbout() {
+        panelProject.classList.remove("open");
+        panelAbout.classList.add("open");
+        focusOn(new THREE.Vector3(0, 0, 0), 30);
+      }
+
+      function openProject(i) {
+        const proj = PROJECTS[i];
+        const planet = planetMeshes[i];
+
+        // Populate panel
+        document.getElementById("proj-panel-label").textContent = "Project";
+        document.getElementById("proj-name").textContent = proj.name;
+        document.getElementById("proj-tagline").textContent = proj.tagline;
+        document.getElementById("proj-desc").textContent = proj.desc;
+        document.getElementById("proj-github").href = proj.github;
+        document.getElementById("proj-planet-orb").style.background =
+          "#" + proj.color.toString(16).padStart(6, "0");
+        document.getElementById("proj-planet-orb").style.color =
+          "#" + proj.color.toString(16).padStart(6, "0");
+
+        const hex = "#" + proj.color.toString(16).padStart(6, "0");
+        const techEl = document.getElementById("proj-tech");
+        techEl.innerHTML = "";
+        proj.tech.forEach((t) => {
+          const c = document.createElement("span");
+          c.className = "tech-chip";
+          c.textContent = t;
+          c.style.borderColor = hex + "55";
+          c.style.color = hex;
+          techEl.appendChild(c);
+        });
+
+        const bulletsEl = document.getElementById("proj-bullets");
+        bulletsEl.innerHTML = "";
+        proj.bullets.forEach((b) => {
+          const li = document.createElement("li");
+          li.textContent = b;
+          bulletsEl.appendChild(li);
+        });
+
+        panelAbout.classList.remove("open");
+        panelProject.classList.add("open");
+
+        // focus camera on planet
+        focusOn(planet.position.clone(), 20);
+      }
+
+      function closeAll() {
+        panelAbout.classList.remove("open");
+        panelProject.classList.remove("open");
+        resetCamera();
+      }
+
+      document
+        .getElementById("close-about")
+        .addEventListener("click", closeAll);
+      document
+        .getElementById("close-project")
+        .addEventListener("click", closeAll);
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeAll();
+      });
+
+      // ─── ANIMATE ─────────────────────────────────────────────────────────────
+      const clock = new THREE.Clock();
+
+      function animate() {
+        requestAnimationFrame(animate);
+        const t = clock.getElapsedTime();
+
+        // Camera lerp
+        if (animating) {
+          camera.position.lerp(targetCamPos, 0.04);
+          controls.target.lerp(targetLookAt, 0.04);
+          if (camera.position.distanceTo(targetCamPos) < 0.5) animating = false;
+        }
+
+        // Sun pulse
+        const sunPulse = 0.97 + Math.sin(t * 1.4) * 0.03;
+        sun.scale.setScalar(sunPulse);
+        sunMat.emissiveIntensity = 1.2 + Math.sin(t * 1.8) * 0.3;
+        sun.rotation.y += 0.001;
+
+        // Planets orbit
+        PROJECTS.forEach((proj, i) => {
+          planetAngles[i] += proj.orbitSpeed;
+          const a = planetAngles[i];
+          const x = Math.cos(a) * proj.orbitRadius;
+          const z = Math.sin(a) * proj.orbitRadius;
+          const y = Math.sin(a * 0.3) * proj.tilt * 6;
+          planetMeshes[i].position.set(x, y, z);
+          planetMeshes[i].rotation.y += 0.004;
+
+          // Moon orbit
+          const moon = planetMeshes[i].userData.moon;
+          if (moon) {
+            const ma = t * 0.7 + i * 1.5;
+            moon.position.set(
+              x + Math.cos(ma) * (proj.radius * 2.8),
+              y,
+              z + Math.sin(ma) * (proj.radius * 2.8),
+            );
+          }
+        });
+
+        // Asteroids
+        for (let i = 0; i < AST_COUNT; i++) {
+          astAngles[i] += astSpeeds[i];
+          dummy.position.set(
+            Math.cos(astAngles[i]) * astRadii[i],
+            astY[i],
+            Math.sin(astAngles[i]) * astRadii[i],
+          );
+          dummy.rotation.y += 0.004;
+          dummy.updateMatrix();
+          astMesh.setMatrixAt(i, dummy.matrix);
+        }
+        astMesh.instanceMatrix.needsUpdate = true;
+
+        // Stars slow drift
+        stars1.rotation.y += 0.00004;
+        stars2.rotation.y -= 0.00002;
+
+        // Hover detection
+        raycaster.setFromCamera(mouse, camera);
+        const hits = raycaster.intersectObjects(clickables, false);
+        if (hits.length) {
+          const obj = hits[0].object;
+          if (hovered !== obj) {
+            if (hovered) {
+              hovered.scale.setScalar(1);
+            }
+            hovered = obj;
+          }
+          hovered.scale.setScalar(1.08);
+          const label =
+            obj.name === "sun"
+              ? "ABOUT ME — Zain Rasool Hashmi"
+              : PROJECTS[obj.userData.projIndex].name;
+          tooltip.textContent = label;
+          tooltip.style.opacity = "1";
+          document.body.style.cursor = "pointer";
+        } else {
+          if (hovered) {
+            hovered.scale.setScalar(1);
+            hovered = null;
+          }
+          tooltip.style.opacity = "0";
+          document.body.style.cursor = "default";
+        }
+
+        // Shooting stars
+        updateShootingStars();
+
+        controls.update();
+        composer.render();
+      }
+
+      // ─── INIT ─────────────────────────────────────────────────────────────────
+      setTimeout(() => {
+        const loader = document.getElementById("loader");
+        loader.classList.add("fade-out");
+        setTimeout(() => {
+          loader.style.display = "none";
+          document.getElementById("hud-name").style.opacity = "1";
+          document.getElementById("hud-hint").style.opacity = "1";
+          document.getElementById("help-btn").style.opacity = "1";
+        }, 800);
+      }, 1800);
+
+      animate();
+
+      window.addEventListener("resize", () => {
+        camera.aspect = innerWidth / innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(innerWidth, innerHeight);
+        composer.setSize(innerWidth, innerHeight);
+        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      });
+    </script>
+  </body>
+</html>
